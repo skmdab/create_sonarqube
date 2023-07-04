@@ -1,0 +1,56 @@
+---
+- hosts: 10.0.0.134
+  become: true
+  tasks:
+  - name: Install openjdk-11
+    yum: 
+     name: [ 'java-11-openjdk-devel', 'unzip' ]
+     state: present
+  
+  - name: Download Sonarqube pacakage
+    get_url: 
+     url: https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-9.6.1.59531.zip
+     dest: /opt/
+  
+  - name: Extract the pacakge
+    unarchive:
+     src: /opt/sonarqube-9.6.1.59531.zip
+     dest: /opt/
+     remote_src: yes
+
+  - name: Rename the Sonarqube
+    shell: 
+     mv /opt/sonarqube-9.6.1.59531 /opt/sonarqube
+
+  - name: Creating user Sonarqube
+    user:
+     name: sonar
+     create_home: yes
+     shell: /bin/bash
+     password: "{{ 'redhat' | password_hash('sha512','A512') }}"
+
+  - name: sudo accesss for sonar user
+    copy:
+     dest: /etc/sudoers.d/sonar
+     content: 'sonar ALL=(ALL) NOPASSWD: ALL'
+     validate: /usr/sbin/visudo -cf %s
+
+  - name: change the owner and group ownership of the sonarqube folder
+    file:
+     path: /opt/sonarqube
+     owner: sonar
+     group: sonar
+     mode: 0775
+     recurse: yes
+     state: directory
+
+- name: Change working directory
+  hosts: 10.0.0.134
+  tasks:
+    - name: Change directory
+      command:
+        chdir: /opt/sonarqube/bin/linux-x86-64
+        cmd: ./sonar.sh start 
+ 
+...
+ 
