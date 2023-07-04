@@ -1,5 +1,5 @@
 ---
-- hosts: 10.0.0.134
+- hosts: sonarqube
   become: true
   tasks:
   - name: Install openjdk-11
