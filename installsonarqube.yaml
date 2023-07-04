@@ -45,7 +45,7 @@
      state: directory
 
 - name: Change working directory
-  hosts: 10.0.0.134
+  hosts: sonarqube
   tasks:
     - name: Change directory
       command:
