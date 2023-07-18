@@ -17,7 +17,9 @@ pipeline{
 
         stage('Installing sonarqube package into server'){
             steps{
-                sh "ansible-playbook installsonarqube.yaml"
+                withCredentials([file(credentialsId: 'pemfile', variable: 'PEMFILE')]) {
+		   sh 'ansible-playbook installsonarqube.yaml --private-key="$PEMFILE"'
+		}
             }
         }
     }
